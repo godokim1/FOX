@@ -32,93 +32,135 @@
 				y : null,
 				m : null,
 				d : null
-			},
-			schedule : [
-				{
-					y : 2014,
-					m : 4,
-					d : 3,
-					t : "놀자"
-				} , {
-					y : 2014,
-					m : 3,
-					d : 7,
-					t : "신나게 멍청하게 지난단달ㅇ망ㄻㄴ"
-				}
-			]
+			}
 		}, options);
 
 		return this.each(function(){
-			var FoxCalendar = function(){},
-				foxCalendar = null,
-				self = this,
-				$self = $(self),
-				date = new Date();
+			var self = this,
+				$self = $(self);
+			var date = new Date();
 
-			FoxCalendar.fn = FoxCalendar.prototype;
-			FoxCalendar.fn.init = function(){
+			function init(){
 				opt.today.y = date.getFullYear();
 				opt.today.m = date.getMonth() + 1;
 				opt.today.d = date.getDate();
-				// this.EventPathInit();
-				this.showCalendar(opt.today.y, opt.today.m);
 
+				$.data(self, "dateY", opt.today.y);
+				$.data(self, "dateM", opt.today.m);
 
+				headDraw(opt.today.y, opt.today.m);
+				bodyDraw(opt.today.y, opt.today.m);
+
+				$("#yearPrev").on("click.yearPrev", yearPrev);
+				$("#monthPrev").on("click.monthPrev", monthPrev);
+				$("#yearNext").on("click.yearNext", yearNext);
+				$("#monthNext").on("click.monthNext", monthNext);
 			};
-			FoxCalendar.fn.showCalendar = function(y, m){
-				var text = '<div class="c_controll">';
-				text += '	<button onclick="showCalendar('+(y-1)+','+m+')"> Y- </button>';
-				text += '	<button onclick="showCalendar('+(m==1?(y-1)+','+12:y+','+(m-1))+')"> M- </button>';
-				text += '	[' + y + '/' + ((m < 10) ? ('0' + m) : m) + ']';
-				text += '	<button onclick="showCalendar('+(m==12?(y+1)+','+1:y+','+(m+1))+')"> M+ </button>';
-				text += '	<button onclick="showCalendar('+(y+1)+','+m+')"> Y+ </button>';
-				text += '</div>';
-				text += '<table>';
-				text += '	<colgroup>';
-				text += '		<col style="width:100px" />';
-				text += '		<col style="width:100px" />';
-				text += '		<col style="width:100px" />';
-				text += '		<col style="width:100px" />';
-				text += '		<col style="width:100px" />';
-				text += '		<col style="width:100px" />';
-				text += '		<col style="width:100px" />';
-				text += '	</colgroup>';
-				text += '	<thead>';
-				text += '		<tr>';
-				text += '		<th scope="col" class="c_sunday">일</th>';
-				text += '		<th scope="col">월</th>';
-				text += '		<th scope="col">화</th>';
-				text += '		<th scope="col">수</th>';
-				text += '		<th scope="col">목</th>';
-				text += '		<th scope="col">금</th>';
-				text += '		<th scope="col">토</th>';
-				text += '		</tr>';
-				text += '	</thead>';
-
-				var _d = (y+(y-y%4)/4-(y-y%100)/100+(y-y%400)/400+m*2+(m*5-m*5%9)/9-(m<3?y%4||y%100==0&&y%400?2:3:4))%7;
+			function head(pY, pM){
+				var __text =
+				'<div class="c_controll">'							+
+				'	<button id="yearPrev"> Y- </button>'			+
+				'	<button id="monthPrev"> M- </button>'			+
+				'	[' + pY + '/' + ((pM < 10) ? ('0' + pM) : pM) + ']'	+
+				'	<button id="monthNext"> M+ </button>'			+
+				'	<button id="yearNext"> Y+ </button>'			+
+				'</div>'											+
+				'<table>'											+
+				'	<colgroup>'										+
+				'		<col style="width:100px" />'				+
+				'		<col style="width:100px" />'				+
+				'		<col style="width:100px" />'				+
+				'		<col style="width:100px" />'				+
+				'		<col style="width:100px" />'				+
+				'		<col style="width:100px" />'				+
+				'		<col style="width:100px" />'				+
+				'	</colgroup>'									+
+				'	<thead>'										+
+				'		<tr>'										+
+				'		<th scope="col" class="c_sunday">일</th>'	+
+				'		<th scope="col">월</th>'					+
+				'		<th scope="col">화</th>'					+
+				'		<th scope="col">수</th>'					+
+				'		<th scope="col">목</th>'					+
+				'		<th scope="col">금</th>'					+
+				'		<th scope="col">토</th>'					+
+				'		</tr>'										+
+				'	</thead>'										+
+				'	<tbody>'										+
+				'	</tbody>'										+
+				'</table>';
+				return __text;
+			}
+			function headDraw(pY, pM){
+				var _txt = head(pY, pM);
+				$self.append(_txt);
+			}
+			function body(pY, pM)
+			{
+				var __text = "";
+				var __d = (pY+(pY-pY%4)/4-(pY-pY%100)/100+(pY-pY%400)/400+pM*2+(pM*5-pM*5%9)/9-(pM<3?pY%4||pY%100==0&&pY%400?2:3:4))%7;
 
 				for (i = 0; i < 42; i++) {
-					if (i%7==0) text += '</tr>\n<tr>';
-					if (i < _d || i >= _d+(m*9-m*9%8)/8%2+(m==2?y%4||y%100==0&&y%400?28:29:30)) text += '<td></td>';
+					if (i%7==0) __text += '</tr>\n<tr>';
+					if (i < __d || i >= __d+(pM*9-pM*9%8)/8%2+(pM==2?pY%4||pY%100==0&&pY%400?28:29:30)) __text += '<td></td>';
 					else {
-						var __d = i+1-_d;
-						if (__d === opt.today.d && y === opt.today.y && opt.today.m === m) {
-							if (this.isSchedule({y : y, m : m, d : __d})) {
-								text += '<td class="c_today"><span>' + __d + '</span><p>'+this.getSchedule(__d)+'</p></td>';
+						var ___d = i+1-__d;
+						if (___d === opt.today.d && pY === opt.today.y && opt.today.m === pM) {
+							if (isSchedule({y : pY, m : pM, d : ___d})) {
+								__text += '<td class="c_today"><span>' + ___d + '</span><p>'+getSchedule(___d)+'</p></td>';
 							} else {
-								text += '<td class="c_today"><span>' + __d + '</span></td>';
+								__text += '<td class="c_today"><span>' + ___d + '</span></td>';
 							}
 						} else {
-							if (this.isSchedule({y : y, m : m, d : __d})) {
-								text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + __d + '</span><p>'+this.getSchedule(__d)+'</p></td>';
+							if (isSchedule({y : pY, m : pM, d : ___d})) {
+								__text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + ___d + '</span><p>'+getSchedule(___d)+'</p></td>';
 							} else {
-								text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + __d + '</span></td>';
+								__text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + ___d + '</span></td>';
 							}
 						}
 					}
 				}
-				text += '</tr>\n</table>';
-				$self.html(text);
+				__text += '</tr>';
+				return __text;
+			}
+			function bodyDraw(pY, pM){
+				$.data(self, "dateY", pY);
+				$.data(self, "dateM", pM);
+
+				var _txt = body(pY, pM);
+				$self.find("tbody").html(_txt);
+			}
+			function yearPrev(pY, pM){
+				bodyDraw($.data(self, "dateY") - 1, $.data(self, "dateM"));
+			}
+			function monthPrev(){
+				var _y = $.data(self, "dateY"),
+					_m = $.data(self, "dateM");
+
+				if (_m == 1) {
+					_y = _y-1;
+					_m = 12;
+				} else {
+					_y = _y;
+					_m = _m-1;
+				}
+				bodyDraw(_y, _m);
+			}
+			function monthNext(pY, pM){
+				var _y = $.data(self, "dateY"),
+					_m = $.data(self, "dateM");
+
+				if (_m == 1) {
+					_y = _y+1;
+					_m = 12;
+				} else {
+					_y = _y;
+					_m = _m+1;
+				}
+				bodyDraw(_y, _m);
+			}
+			function yearNext(pY, pM){
+				bodyDraw($.data(self, "dateY") + 1, $.data(self, "dateM"));
 			}
 			/**
 			 * isSchedule => 이번달이 맞는지 확인하는 method 이번달일 경우에만 text를 뿌려주기 위한 Function
@@ -127,7 +169,7 @@
 			 * @param  {Number}  o.d => Date
 			 * @return {Boolean} => 초기 설정 schedule 값 중 y,m,d 모두 일치하면 true
 			 */
-			FoxCalendar.fn.isSchedule = function(o){
+			function isSchedule(o){
 				var _leg = opt.schedule.length;
 				for (var i = 0; i < _leg; i++) {
 					if (o.y === opt.schedule[i].y && o.m === opt.schedule[i].m && o.d === opt.schedule[i].d) {
@@ -141,7 +183,7 @@
 			 * @param  {Number} date => for Date
 			 * @return {Number} => 초기설정 schedule 값 d 와 일치하면 해당 스케쥴 반환
 			 */
-			FoxCalendar.fn.getSchedule = function(date){
+			function getSchedule(date){
 				var _leg = opt.schedule.length;
 				for (var i = 0; i < _leg; i++) {
 					if (date === opt.schedule[i].d) {
@@ -150,10 +192,7 @@
 				}
 			}
 
-			// init();
-			this["FoxCalendar"] = new FoxCalendar();
-			foxCalendar = this.FoxCalendar;
-			foxCalendar.init();
+			init();
 		});
 	};
 }(jQuery));
