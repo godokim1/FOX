@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<script type="text/javascript" src="../../js/lib/jquery-1.10.1.js"></script>
+	<script type="text/javascript" src="../../js/service/path.js"></script>
+	<script type="text/javascript" src="./calendar.js"></script>
+</head>
+<body>
+<div id="calendarDiv" class="calendarDiv"></div>
+<script>
+//-------------------------- controller --------------------------//
+$("#calendarDiv").FoxCalendar({
+	schedule : [
+		{
+			y : 2014,
+			m : 3,
+			d : 3,
+			t : "놀자"
+		} , {
+			y : 2014,
+			m : 3,
+			d : 7,
+			t : "신나게 멍청하게 지난단달ㅇ망ㄻㄴ"
+		} , {
+			y : 2014,
+			m : 3,
+			d : 20,
+			t : "신나게 멍청하게 지난단달ㅇ망ㄻㄴ"
+		}
+	]
+});
+function showCalendar(y, m){
+	document.getElementById("calendarDiv").FoxCalendar.showCalendar(y, m);
+}
+</script>
+</body>
+</html>

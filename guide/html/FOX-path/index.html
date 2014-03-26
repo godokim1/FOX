@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<script type="text/javascript" src="../../js/lib/jquery-1.10.1.js"></script>
+	<script type="text/javascript" src="../../js/service/path.js"></script>
+	<script type="text/javascript" src="./path.js"></script>
+</head>
+<body>
+<div id="path">
+	<span class="path_lists"><a href="#" class="depth01"></a></span>
+	<span class="path_lists"><a href="#" class="depth02"></a></span>
+	<span class="path_lists"><a href="#" class="depth03"></a></span>
+</div>
+<script>
+//-------------------------- controller --------------------------//
+$("#path").path({depth01Idx : 3, depth02Idx : 1, depth03Idx : 2});
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<script type="text/javascript" src="../../js/lib/jquery-1.10.1.js"></script>
+	<script type="text/javascript" src="../../js/service/path.js"></script>
+	<script type="text/javascript" src="./selectbox.js"></script>
+</head>
+<body>
+<div class="fox_selectBox">
+	<select name="country_id1" id="country_id1">
+		<optgroup label="North America">
+			<option value="1">USA</option>
+			<option value="9">Canada</option>
+		</optgroup>
+		<optgroup label="Europe">
+			<option value="2">France</option>
+			<option value="3">Spain</option>
+			<option value="6">Bulgaria</option>
+			<option value="7" disabled="disabled">Greece</option>
+			<option value="8">Italy</option>
+		</optgroup>
+		<optgroup label="Asia">
+			<option value="5">Japan</option>
+			<option value="11">China</option>
+		</optgroup>
+		<option value="4" disabled="disabled">Brazil</option>
+		<option value="10">South Africa</option>
+	</select>
+</div>
+<script>
+//-------------------------- controller --------------------------//
+$(".fox_selectBox").FoxSelectBox();
+</script>
+</body>
+</html>
