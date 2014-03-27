@@ -1,8 +1,5 @@
-/**
- * [description]
- * @return {[type]} [description]
- */
 (function($){
+	"use strict";
 	/**
 	 * tab
 	 * @param  {Object} opt -> tabListsWrap, : ul || div, tabLists : li, tabContsWrap, tabConts : div, idx : StartNumber
@@ -23,136 +20,149 @@
 	 |	$("#tab").tab({
 	 |		idx : 1
 	 |	});
-	 * @note
+	 *
 	 */
-	$.fn.tab = function(opt){
+	$.fn.tab = function(options){
+
 		if (!this.length) {
 			return this;
 		}
 
-		var o = $.extend({
+		var opt = $.extend({
 			tabListsWrap : ".tab_list_wrap",
 			tabLists : ".tab_lists",
 			tabContsWrap : ".tab_cont_wrap",
 			tabConts : ".tab_conts",
 			auto : false,
 			idx : 0
-		}, opt);
+		}, options);
 
 		return this.each(function(){
-			var Tab = function(){},
-				tab = null,
-				$this = $(this),
-				$tabListsWrap = $this.find(o.tabListsWrap),
-				$tabLists = $tabListsWrap.find(o.tabLists),
+
+			var self = this,
+				$this = $(self),
+				$tabListsWrap = $this.find(opt.tabListsWrap),
+				$tabLists = $tabListsWrap.find(opt.tabLists),
 				$tabListsA = $tabLists.find("> a"),
-				$tabContsWrap = $this.find(o.tabContsWrap),
-				$tabConts = $tabContsWrap.find(o.tabConts),
-				$tabContsA = $tabConts.find("> a"),
-				tabListLeg = null,
+				$tabContsWrap = $this.find(opt.tabContsWrap),
+				$tabConts = $tabContsWrap.find(opt.tabConts),
+				$tabContsA = $tabConts.find("> a");
+
+			var tabListLeg = null,
 				storageIdx = null,
 				timer = null;
 
-			Tab.fn = Tab.prototype;
-			Tab.fn.init = function(){
-				this.FunTabInit();
-				this.FunAutoStart();
-				this.EventAddlistener({selecter : $this, type : "mouseenter.tab", event : this.EventTab});
-				this.EventAddlistener({selecter : $this, type : "mouseleave.tab", event : this.FunAutoStart});
-				this.EventAddlistener({selecter : $tabListsA, type : "click.tabListsA", event : this.EventTabListsA});
-			};
+			function init(){
+				// setting
+				tabListLeg = $tabLists.length;
+				storageIdx = opt.idx;
+				$tabLists.eq(opt.idx).addClass("on");
+				$tabConts.eq(opt.idx).siblings().hide();
+				// action event
+				autoStart();
+				// event add
+				$this.on($.data("mouseenter.tab", "mouseenter.tab"), autoStop);
+				$this.on($.data("mouseleave.tab", "mouseleave.tab"), autoStart);
+				$tabListsA.on($.data("click.tabListsA", "click.tabListsA"), tabListsA);
+			}
 			/**
-			 * Addlistener
-			 * @param {Object} o -> selecter : "이벤트 종류"
-			 *					 -> type : "이벤트 종류"
-			 *					 -> event : "호출 이벤트"
-			 * @note -> Event 경우 param값을 넘기지 않는다.
+			 * Event) tabListsA
+			 * @param  {event} e => event
+			 * @return {Undefined}
 			 */
-			Tab.fn.EventAddlistener = function(o){
-				o.selecter.on(o.type, o.event);
-			};
-			Tab.fn.EventRemovelistener = function(o){
-				o.selecter.off(o.type);
-			};
-			Tab.fn.EventTab = function(){
-				tab.FunAutoStop();
-			};
-			Tab.fn.EventTabListsA = function(e){
+			function tabListsA(e){
 				var _idx = $tabListsA.index(this);
 
 				if (_idx === storageIdx) {
 					return false;
 				}
 
-				tab.FunList({idx : _idx});
+				_List({idx : _idx});
 				storageIdx = _idx;
 				e.preventDefault();
-			};
-
-			// Fun : init
-			Tab.fn.FunTabInit = function(){
-				tabListLeg = $tabLists.length;
-				$tabLists.eq(o.idx).addClass("on");
-				$tabConts.eq(o.idx).siblings().hide();
-				storageIdx = o.idx;
-			};
-			// Fun : auto
-			Tab.fn.FunAutoStart = function(){
-				timer = setInterval(tab.FunTabListsIncrease, 5000);
-			};
-			// Fun : autoStop
-			Tab.fn.FunAutoStop = function(){
+			}
+			/**
+			 * Event) autoStart
+			 * @return {Undefined}
+			 */
+			function autoStart(){
+				timer = setInterval(_listsIncrease, 5000);
+			}
+			/**
+			 * Event) autoStop
+			 * @return {Undefined}
+			 */
+			function autoStop(){
 				clearInterval(timer);
 				timer = null;
-			};
-			// Fun : list++
-			Tab.fn.FunTabListsIncrease = function(){
+			}
+			/**
+			 * Function) _listsIncrease
+			 * @return {Undefined}
+			 */
+			function _listsIncrease(){
 				if (++storageIdx >= tabListLeg) {
 					storageIdx = 0;
 				}
-				tab.FunList({idx : storageIdx});
-			};
-			// Fun : list
-			Tab.fn.FunList = function(o){
-				this.MetContsClear();
-				this.MetListsClear();
-				this.MetContsAdd({idx : o.idx});
-				this.MetListsAdd({idx : o.idx});
-			};
-			// Method : add
-			Tab.fn.MetContsAdd = function(o){
+				_List({idx : storageIdx});
+			}
+			/**
+			 * Function) _List
+			 * @param  {Number} o.idx => targeting index
+			 * @return {Undefined}
+			 */
+			function _List(o){
+				_listsClear();
+				_listsAdd({idx : o.idx});
+				_contsClear();
+				_contsAdd({idx : o.idx});
+			}
+			/**
+			 * Function) _contsAdd
+			 * @param  {Number} o.idx => targeting index
+			 * @return {Undefined}
+			 */
+			function _contsAdd(o){
 				if ($tabConts.eq(o.idx).is(":hidden")) {
-					// $tabConts.eq(o.idx).show();
 					$tabConts.eq(o.idx)
 						.css({"display" : "block", "left" : "100%"})
 						.animate({"left" : 0});
 				}
-			};
-			Tab.fn.MetListsAdd = function(o){
+			}
+			/**
+			 * Function) _listsAdd
+			 * @param  {Number} o.idx => targeting index
+			 * @return {Undefined}
+			 */
+			function _listsAdd(o){
 				if (!$tabLists.eq(o.idx).hasClass("on")) {
 					$tabLists.eq(o.idx).show().addClass("on");
 				}
-			};
-			// Method : clear
-			Tab.fn.MetContsClear = function(){
+			}
+			/**
+			 * Function) _contsClear
+			 * @return {Undefined}
+			 */
+			function _contsClear(){
 				$.each($tabConts, function(){
 					if ($(this).is(":visible")) {
-						// $(this).hide();
 						$(this).animate({"left" : "-100%"}, function(){$(this).css({"display" : "none"})});
 					}
 				});
-			};
-			Tab.fn.MetListsClear = function(){
+			}
+			/**
+			 * Function) _listsClear
+			 * @return {Undefined}
+			 */
+			function _listsClear(){
 				$.each($tabLists, function(){
 					if ($(this).hasClass("on")) {
 						$(this).removeClass("on");
 					}
 				});
-			};
+			}
 
-			this["Tab"] = new Tab();
-			tab = this.Tab;
-			tab.init();
+			init();
 		});
 	};
 }(jQuery));

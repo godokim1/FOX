@@ -66,10 +66,10 @@
 				_bodyDraw(opt.today.y, opt.today.m);
 
 				// event add
-				$("#"+opt.yearPrev).on("click.yearPrev", yearPrev);
-				$("#"+opt.monthPrev).on("click.monthPrev", monthPrev);
-				$("#"+opt.yearNext).on("click.yearNext", yearNext);
-				$("#"+opt.monthNext).on("click.monthNext", monthNext);
+				$("#"+opt.yearPrev).on($.data(self, "click.yearPrev", "click.yearPrev"), yearPrev);
+				$("#"+opt.monthPrev).on($.data(self, "click.monthPrev", "click.monthPrev"), monthPrev);
+				$("#"+opt.yearNext).on($.data(self, "click.yearNext", "click.yearNext"), yearNext);
+				$("#"+opt.monthNext).on($.data(self, "click.monthNext", "click.monthNext"), monthNext);
 			};
 			/**
 			 * Function) _headDraw > __head
@@ -80,9 +80,9 @@
 			function __head(pY, pM){
 				var __text =
 				  '<div class="c_controll">'
+				+ '	<strong id="viewDate">' + pY + '/' + ((pM < 10) ? ('0' + pM) : pM) + '</strong>'
 				+ '	<button id="' + opt.yearPrev + '"> Y- </button>'
 				+ '	<button id="' + opt.monthPrev + '"> M- </button>'
-				+ '	[' + pY + '/' + ((pM < 10) ? ('0' + pM) : pM) + ']'
 				+ '	<button id="' + opt.monthNext + '"> M+ </button>'
 				+ '	<button id="' + opt.yearNext + '"> Y+ </button>'
 				+ '</div>'
@@ -156,7 +156,16 @@
 				return __text;
 			}
 			/**
-			 * Function > _bodyDraw
+			 * Function) _bodyDraw > __viewDate
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 * @return {Undefined}
+			 */
+			function __viewDate(pY, pM){
+				$("#viewDate").html(pY + "/" + pM);
+			}
+			/**
+			 * Function) _bodyDraw
 			 * @param  {Number} pY => Year
 			 * @param  {Number} pM => Month
 			 * @return {Undefined}
@@ -165,7 +174,9 @@
 				$.data(self, "dateY", pY);
 				$.data(self, "dateM", pM);
 
+				__viewDate(pY, pM);
 				var _txt = __body(pY, pM);
+
 				$self.find("tbody").html(_txt);
 			}
 			/**
@@ -206,9 +217,9 @@
 				var _y = $.data(self, "dateY"),
 					_m = $.data(self, "dateM");
 
-				if (_m == 1) {
+				if (_m == 12) {
 					_y = _y+1;
-					_m = 12;
+					_m = 1;
 				} else {
 					_y = _y;
 					_m = _m+1;
