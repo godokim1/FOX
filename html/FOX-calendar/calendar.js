@@ -1,26 +1,35 @@
-/**
- * [description]
- * @return {[type]} [description]
- */
 (function($){
 	/**
 	 * FoxCalendar
-	 * @param  {Object} opt -> depth01~03 : a, depthIdx01~03 : startNumber
+	 *
+	 * @param  {Number} today.y -> today Yaer
+	 * @param  {Number} today.m -> today Month
+	 * @param  {Number} today.d -> today day
+	 * @param  {Number} schedule.y -> schedule Yaer
+	 * @param  {Number} schedule.m -> schedule Month
+	 * @param  {Number} schedule.d -> schedule day
+	 * @param  {String} schedule.t -> schedule Text
+	 * @param  {String} yearPrev -> yearPrev Btn Id
+	 * @param  {String} monthPrev -> monthPrev Btn Id
+	 * @param  {String} monthNext -> monthNext Btn Id
+	 * @param  {String} yearNext -> yearNext Btn Id
 	 * @return {jQuery} this
+	 *
 	 * @markup language
-	 |	<div id="path">
-	 |		<span><a href="#" class="depth01"></a></span>
-	 |		<span><a href="#" class="depth02"></a></span>
-	 |		<span><a href="#" class="depth03"></a></span>
-	 |	</div>
+	 |	<div id="calendarDiv" class="calendarDiv"></div>
+	 *
 	 * @stylesheet language
+	 *
 	 * @JavaScript language
-	 |	$("#path").path({
-	 |		depth01Idx : 1,
-	 |		depth02Idx : 0,
-	 |		depth03Idx : 2
+	 |	$("#calendarDiv").FoxCalendar({
+	 |		schedule : [{
+	 |			y : 2014,
+	 |			m : 3,
+	 |			d : 3,
+	 |			t : "놀자"
+	 |		}]
 	 |	});
-	 * @note
+	 *
 	 */
 	$.fn.FoxCalendar = function(options){
 		if (!this.length) {
@@ -32,7 +41,11 @@
 				y : null,
 				m : null,
 				d : null
-			}
+			},
+			yearPrev : "yearPrev",
+			monthPrev : "monthPrev",
+			monthNext : "monthNext",
+			yearNext : "yearNext"
 		}, options);
 
 		return this.each(function(){
@@ -53,50 +66,50 @@
 				_bodyDraw(opt.today.y, opt.today.m);
 
 				// event add
-				$("#yearPrev").on("click.yearPrev", yearPrev);
-				$("#monthPrev").on("click.monthPrev", monthPrev);
-				$("#yearNext").on("click.yearNext", yearNext);
-				$("#monthNext").on("click.monthNext", monthNext);
+				$("#"+opt.yearPrev).on("click.yearPrev", yearPrev);
+				$("#"+opt.monthPrev).on("click.monthPrev", monthPrev);
+				$("#"+opt.yearNext).on("click.yearNext", yearNext);
+				$("#"+opt.monthNext).on("click.monthNext", monthNext);
 			};
 			/**
 			 * Function) _headDraw > __head
 			 * @param  {Number} pY => Year
 			 * @param  {Number} pM => Month
-			 * @return {String} __text => _headDraw 에서 그려줄 dom을 작성
+			 * @return {String} __text => _headDraw 에서 그려줄 dom을 넘겨줌
 			 */
 			function __head(pY, pM){
 				var __text =
-				'<div class="c_controll">'								+
-				'	<button id="yearPrev"> Y- </button>'				+
-				'	<button id="monthPrev"> M- </button>'				+
-				'	[' + pY + '/' + ((pM < 10) ? ('0' + pM) : pM) + ']'	+
-				'	<button id="monthNext"> M+ </button>'				+
-				'	<button id="yearNext"> Y+ </button>'				+
-				'</div>'												+
-				'<table>'												+
-				'	<colgroup>'											+
-				'		<col style="width:100px" />'					+
-				'		<col style="width:100px" />'					+
-				'		<col style="width:100px" />'					+
-				'		<col style="width:100px" />'					+
-				'		<col style="width:100px" />'					+
-				'		<col style="width:100px" />'					+
-				'		<col style="width:100px" />'					+
-				'	</colgroup>'										+
-				'	<thead>'											+
-				'		<tr>'											+
-				'		<th scope="col" class="c_sunday">일</th>'		+
-				'		<th scope="col">월</th>'						+
-				'		<th scope="col">화</th>'						+
-				'		<th scope="col">수</th>'						+
-				'		<th scope="col">목</th>'						+
-				'		<th scope="col">금</th>'						+
-				'		<th scope="col">토</th>'						+
-				'		</tr>'											+
-				'	</thead>'											+
-				'	<tbody>'											+
-				'	</tbody>'											+
-				'</table>';
+				  '<div class="c_controll">'
+				+ '	<button id="' + opt.yearPrev + '"> Y- </button>'
+				+ '	<button id="' + opt.monthPrev + '"> M- </button>'
+				+ '	[' + pY + '/' + ((pM < 10) ? ('0' + pM) : pM) + ']'
+				+ '	<button id="' + opt.monthNext + '"> M+ </button>'
+				+ '	<button id="' + opt.yearNext + '"> Y+ </button>'
+				+ '</div>'
+				+ '<table>'
+				+ '	<colgroup>'
+				+ '		<col style="width:100px" />'
+				+ '		<col style="width:100px" />'
+				+ '		<col style="width:100px" />'
+				+ '		<col style="width:100px" />'
+				+ '		<col style="width:100px" />'
+				+ '		<col style="width:100px" />'
+				+ '		<col style="width:100px" />'
+				+ '	</colgroup>'
+				+ '	<thead>'
+				+ '		<tr>'
+				+ '		<th scope="col" class="c_sunday">일</th>'
+				+ '		<th scope="col">월</th>'
+				+ '		<th scope="col">화</th>'
+				+ '		<th scope="col">수</th>'
+				+ '		<th scope="col">목</th>'
+				+ '		<th scope="col">금</th>'
+				+ '		<th scope="col">토</th>'
+				+ '		</tr>'
+				+ '	</thead>'
+				+ '	<tbody>'
+				+ '	</tbody>'
+				+ '</table>';
 				return __text;
 			}
 			/**
@@ -113,7 +126,7 @@
 			 * Function) _bodyDraw > __body
 			 * @param  {Number} pY => Year
 			 * @param  {Number} pM => Month
-			 * @return {String} __text => _bodyDraw 에서 그려줄 dom을 작성
+			 * @return {String} __text => _bodyDraw 에서 그려줄 dom을 넘겨줌
 			 */
 			function __body(pY, pM){
 				var __text = "";
