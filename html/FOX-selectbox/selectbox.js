@@ -1,8 +1,5 @@
-/**
- * [description]
- * @return {[type]} [description]
- */
 (function($){
+	"use strict";
 	/**
 	 * FoxSelectBox
 	 * @param  {Object} opt -> depth01~03 : a, depthIdx01~03 : startNumber
@@ -41,9 +38,7 @@
 		}, opt);
 
 		return this.each(function(idx){
-			var SelectBox = function(){},
-				selectBox = null,
-				$this = $(this),
+			var $this = $(this),
 				$selectBox = $this.find("select"),
 				$selectValue = null,
 				$selectBtn = null,
@@ -51,8 +46,7 @@
 				$selectList = null,
 				flag = false
 
-			SelectBox.fn = SelectBox.prototype;
-			SelectBox.fn.init = function(){
+			function init(){
 				// dom draw setting
 				var _clone = this.FunClone();
 				var _draw = this.FunDraw(_clone);
@@ -65,50 +59,41 @@
 				// select toggle text setting
 				$selectValue.text("항목을선택해주세요");
 				// event add
-				this.EventAddlistener({selecter : $selectValue,	type : "click.selectValue",	event : this.EventSelectValue});
-				this.EventAddlistener({selecter : $selectBtn,	type : "click.selectBtn",	event : this.EventSelectBtn});
-				this.EventAddlistener({selecter : $selectList,	type : "click.selectList",	event : this.EventSelectList});
+				$selectValue.on($.data(self,"click.selectValue","click.selectValue"), selectValue);
+				$selectBtn.on($.data(self,"click.selectBtn","click.selectBtn"), selectBtn);
+				$selectList.on($.data(self,"click.selectList","click.selectList"), selectList);
 			};
 			//-------------------------- Event Group (S) --------------------------//
 			/**
-			 * Event Append
-			 * @param {String} type => event type : ex) "click.target", "mouseenter.target"
-			 * @param {Function} event => Closures Function : ex) EventSelectValue
+			 * Event) selectValue
+			 * @return {Undefined}
 			 */
-			SelectBox.fn.EventAddlistener = function(o){
-				o.selecter.on(o.type, o.event);
-			};
-			/**
-			 * Event Remove
-			 * @param {String} o.type => event type : ex) "click.target", "mouseenter.target"
-			 */
-			SelectBox.fn.EventRemovelistener = function(o){
-				o.selecter.off(o.type);
-			};
-			/**
-			 * Event Value Click
-			 */
-			SelectBox.fn.EventSelectValue = function(){
+			function selectValue(){
 				MetToggle();
 				return false;
 			}
 			/**
-			 * Event Btn Click
+			 * Event) selectBtn
+			 * @return {Undefined}
 			 */
-			SelectBox.fn.EventSelectBtn = function(){
+			function selectBtn(){
 				MetToggle();
 				return false;
 			}
 			/**
-			 * Event List Click
+			 * Event) selectList
+			 * @return {Undefined}
 			 */
-			SelectBox.fn.EventSelectList = function(){
+			function selectList(e){
 				var _val = $(this).attr("val");
 				var _txt = $(this).text();
+
 				MetToggle();
+
 				$selectValue.text(_txt);
 				$selectBox[0].value = _val;
-				return false;
+
+				e.preventDefault();
 			}
 			//-------------------------- Event Group (E) --------------------------//
 			//-------------------------- Function Group (S) --------------------------//
@@ -116,7 +101,7 @@
 			 * clone => selectbox dom에 있는 value, text 값을 가져와 저장하는 function
 			 * @return {Array} _data => 배열 안에 json
 			 */
-			SelectBox.fn.FunClone = function(){
+			function FunClone(){
 				var _child = $selectBox.children();
 				var _data = [];
 				var _parent = 1;
@@ -165,7 +150,7 @@
 			 * @param  {Array} clone => clone에서 저장한 값
 			 * @return {josn} => dom에 추가 하기 위한 _DselectOptionHtml, _DselectBox 값을 전달
 			 */
-			SelectBox.fn.FunDraw = function(clone){
+			function FunDraw(clone){
 				var _data = clone;
 				var _DselectOptionHtml = [];
 				var _DselectBox = "";
@@ -225,7 +210,7 @@
 			 * @param  {json} html => drow에서 생성한 box, option
 			 * @return {undefined} 전달할 값이 없기 때문에 return 값이 필요하지 않다.
 			 */
-			SelectBox.fn.FunAppend = function(html){
+			function FunAppend(html){
 				$this.append(html.box);
 				$("#foxSelectBox" + idx).find("ul").append(html.option);
 			};

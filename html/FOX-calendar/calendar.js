@@ -1,18 +1,19 @@
 (function($){
+	"use strict";
 	/**
 	 * FoxCalendar
 	 *
-	 * @param  {Number} today.y -> today Yaer
-	 * @param  {Number} today.m -> today Month
-	 * @param  {Number} today.d -> today day
-	 * @param  {Number} schedule.y -> schedule Yaer
-	 * @param  {Number} schedule.m -> schedule Month
-	 * @param  {Number} schedule.d -> schedule day
-	 * @param  {String} schedule.t -> schedule Text
-	 * @param  {String} yearPrev -> yearPrev Btn Id
-	 * @param  {String} monthPrev -> monthPrev Btn Id
-	 * @param  {String} monthNext -> monthNext Btn Id
-	 * @param  {String} yearNext -> yearNext Btn Id
+	 * @param  {Number} today.y		=> today Yaer
+	 * @param  {Number} today.m		=> today Month
+	 * @param  {Number} today.d		=> today day
+	 * @param  {Number} schedule.y	=> schedule Yaer
+	 * @param  {Number} schedule.m	=> schedule Month
+	 * @param  {Number} schedule.d	=> schedule day
+	 * @param  {String} schedule.t	=> schedule Text
+	 * @param  {String} yearPrev	=> yearPrev Btn Id
+	 * @param  {String} monthPrev	=> monthPrev Btn Id
+	 * @param  {String} monthNext	=> monthNext Btn Id
+	 * @param  {String} yearNext	=> yearNext Btn Id
 	 * @return {jQuery} this
 	 *
 	 * @markup language
@@ -132,7 +133,7 @@
 				var __text = "";
 				var __d = (pY+(pY-pY%4)/4-(pY-pY%100)/100+(pY-pY%400)/400+pM*2+(pM*5-pM*5%9)/9-(pM<3?pY%4||pY%100==0&&pY%400?2:3:4))%7;
 
-				for (i = 0; i < 42; i++) {
+				for (var i = 0; i < 42; i++) {
 					if (i%7==0) __text += '</tr>\n<tr>';
 					if (i < __d || i >= __d+(pM*9-pM*9%8)/8%2+(pM==2?pY%4||pY%100==0&&pY%400?28:29:30)) __text += '<td></td>';
 					else {

@@ -2,8 +2,15 @@
 	"use strict";
 	/**
 	 * tab
-	 * @param  {Object} opt -> tabListsWrap, : ul || div, tabLists : li, tabContsWrap, tabConts : div, idx : StartNumber
-	 * @return {jQuery} this
+	 *
+	 * @param  {String}	 tabListsWrap	 => list ul을 감싸고 있는 박스 네이밍
+	 * @param  {String}	 tabLists		 => list 클래스나 엘리먼트
+	 * @param  {String}	 tabContsWrap	 => contens를 감싸고 있는 박스 네이밍
+	 * @param  {String}	 tabConts		 => contens 엘리먼트
+	 * @param  {Boolean} auto			 => true : 실행, false : 멈춤
+	 * @param  {Number}	 idx			 => 시작 위치
+	 * @return {jQuery}	 this
+	 *
 	 * @markup language
 	 |	<div id="tab">
 	 |		<div class="tab_list_wrap">
@@ -15,7 +22,9 @@
 	 |			<div class="tab_conts">나는내용이다.1</div>
 	 |		</div>
 	 |	</div>
+	 *
 	 * @stylesheet language
+	 *
 	 * @JavaScript language
 	 |	$("#tab").tab({
 	 |		idx : 1
@@ -38,7 +47,7 @@
 		}, options);
 
 		return this.each(function(){
-
+			// sele
 			var self = this,
 				$this = $(self),
 				$tabListsWrap = $this.find(opt.tabListsWrap),
@@ -54,16 +63,16 @@
 
 			function init(){
 				// setting
-				tabListLeg = $tabLists.length;
-				storageIdx = opt.idx;
 				$tabLists.eq(opt.idx).addClass("on");
 				$tabConts.eq(opt.idx).siblings().hide();
+				storageIdx = opt.idx;
+				tabListLeg = $tabLists.length;
 				// action event
 				autoStart();
 				// event add
-				$this.on($.data("mouseenter.tab", "mouseenter.tab"), autoStop);
-				$this.on($.data("mouseleave.tab", "mouseleave.tab"), autoStart);
-				$tabListsA.on($.data("click.tabListsA", "click.tabListsA"), tabListsA);
+				$this.on($.data(self, "mouseenter.tab", "mouseenter.tab"), autoStop);
+				$this.on($.data(self, "mouseleave.tab", "mouseleave.tab"), autoStart);
+				$tabListsA.on($.data(self, "click.tabListsA", "click.tabListsA"), tabListsA);
 			}
 			/**
 			 * Event) tabListsA
@@ -72,7 +81,6 @@
 			 */
 			function tabListsA(e){
 				var _idx = $tabListsA.index(this);
-
 				if (_idx === storageIdx) {
 					return false;
 				}
@@ -86,7 +94,9 @@
 			 * @return {Undefined}
 			 */
 			function autoStart(){
-				timer = setInterval(_listsIncrease, 5000);
+				if (opt.auto) {
+					timer = setInterval(_listsIncrease, 5000);
+				}
 			}
 			/**
 			 * Event) autoStop
