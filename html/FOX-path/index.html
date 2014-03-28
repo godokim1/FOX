@@ -9,14 +9,12 @@
 	<script type="text/javascript" src="./path.js"></script>
 </head>
 <body>
-<div id="path">
-	<span class="path_lists"><a href="#" class="depth01"></a></span>
-	<span class="path_lists"><a href="#" class="depth02"></a></span>
-	<span class="path_lists"><a href="#" class="depth03"></a></span>
-</div>
+<div id="path"></div>
 <script>
 //-------------------------- controller --------------------------//
-$("#path").path({depth01Idx : 3, depth02Idx : 1, depth03Idx : 2});
+$("#path").path({
+	depthIdx : [0,1]
+});
 </script>
 </body>
 </html>

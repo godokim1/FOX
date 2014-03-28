@@ -1,126 +1,70 @@
-/**
- * [description]
- * @return {[type]} [description]
- */
 (function($){
 	/**
 	 * path
-	 * @param  {Object} opt -> depth01~03 : a, depthIdx01~03 : startNumber
+	 *
+	 * @param  {String} depth01Class => depth01 class name
+	 * @param  {String} depth02Class => depth02 class name
+	 * @param  {String} depth03Class => depth03 class name
+	 * @param  {Array} depthIdx => index 번호 depth 순서대로 입력
+	 *
 	 * @return {jQuery} this
+	 *
 	 * @markup language
-	 |	<div id="path">
-	 |		<span><a href="#" class="depth01"></a></span>
-	 |		<span><a href="#" class="depth02"></a></span>
-	 |		<span><a href="#" class="depth03"></a></span>
-	 |	</div>
+	 *	<div id="path"></div>
+	 *
 	 * @stylesheet language
+	 *
 	 * @JavaScript language
-	 |	$("#path").path({
-	 |		depth01Idx : 1,
-	 |		depth02Idx : 0,
-	 |		depth03Idx : 2
-	 |	});
-	 * @note
+	 *	$("#path").path({
+	 *		depthIdx : [0,1]
+	 *	});
+	 *
 	 */
-	$.fn.path = function(opt){
+	$.fn.path = function(options){
 		if (!this.length) {
 			return this;
 		}
 
-		var o = $.extend({
-			depth01 : ".depth01",
-			depth02 : ".depth02",
-			depth03 : ".depth03",
-			depth01Idx : null,
-			depth02Idx : null,
-			depth03Idx : null
-		}, opt);
+		var opt = $.extend({
+			depth01Class : "depth01",
+			depth02Class : "depth02",
+			depth03Class : "depth03",
+			depthIdx : []
+		}, options);
 
 		return this.each(function(){
-			var Path = function(){},
-				path = null,
-				$this = $(this),
-				$depth01 = $this.find(o.depth01),
-				$depth02 = $this.find(o.depth02),
-				$depth03 = $this.find(o.depth03),
-				depth01Data, depth02Data, depth03Data;
+			var self = this,
+				$self = $(self),
+				dom = [];
 
-			Path.fn = Path.prototype;
-			Path.fn.init = function(){
-				this.EventPathInit();
-			};
-			Path.fn.EventPathInit = function(){
-				// dpeth data have check
-				var _depth01Idx = this.FunDepthCheck({depthIdx : o.depth01Idx});
-				var _depth02Idx = this.FunDepthCheck({depthIdx : o.depth02Idx});
-				var _depth03Idx = this.FunDepthCheck({depthIdx : o.depth03Idx});
+			function init(){
+				var depth01 = pathData[opt.depthIdx[0]];
+				var depth02 = depth01.child[opt.depthIdx[1]];
+				var depth03 = depth02.child[opt.depthIdx[2]];
 
-				// depth01 data input
-				if (_depth01Idx !== null) {
-					depth01Data = this.FunDataDepth01();
-					this.FunDepth01Add();
-				} else {
-					this.MetDepthRemove({selecter : $depth01.parent()});
+				if (typeof opt.depthIdx[0] !== "undefined") {
+					txt({name : depth01.name, href : depth01.href, cls : opt.depth01Class});
+				}
+				if (typeof opt.depthIdx[1] !== "undefined") {
+					txt({name : depth02.name, href : depth02.href, cls : opt.depth02Class});
+				}
+				if (typeof opt.depthIdx[2] !== "undefined") {
+					txt({name : depth03.name, href : depth03.href, cls : opt.depth03Class});
 				}
 
-				// depth02 data input
-				if (_depth02Idx !== null) {
-					depth02Data = this.FunDataDepth02();
-					this.FunDepth02Add();
-				} else {
-					this.MetDepthRemove({selecter : $depth02.parent()});
-				}
+				$self.append(dom);
+			}
 
-				// depth03 data input
-				if (_depth03Idx !== null) {
-					depth03Data = this.FunDataDepth03();
-					this.FunDepth03Add();
-				} else {
-					this.MetDepthRemove({selecter : $depth03.parent()});
-				}
+			function txt(o){
+				var _txt = "";
+					_txt += "<span class=\"path_lists " + o.cls + "\">";
+					_txt += "	<a href=\"" + o.href + "\">" + o.name + "</a>";
+					_txt += "</span>";
 
-				return this;
-			};
-			// path.js data
-			Path.fn.FunDataDepth01 = function(){
-				return path01Data;
-			};
-			Path.fn.FunDataDepth02 = function(){
-				return path02Data;
-			};
-			Path.fn.FunDataDepth03 = function(){
-				return path03Data;
-			};
-			Path.fn.FunDepth01Add = function(){
-				this.MetDepthAdd({selecter : $depth01, depthData : depth01Data[o.depth01Idx]});
-			};
-			Path.fn.FunDepth02Add = function(){
-				this.MetDepthAdd({selecter : $depth02, depthData : depth02Data[o.depth02Idx]});
-			};
-			Path.fn.FunDepth03Add = function(){
-				this.MetDepthAdd({selecter : $depth03, depthData : depth03Data[o.depth03Idx]});
-			};
-			Path.fn.FunDepthCheck = function(o){
-				if (o.depthIdx !== null && typeof o.depthIdx === "number") {
-					return o.depthIdx;
-				} else {
-					return null;
-				}
-			};
-			Path.fn.MetDepthAdd = function(o){
-				o.selecter
-					.html(o.depthData.name)
-					.attr("href", o.depthData.href);
-			};
-			Path.fn.MetDepthRemove = function(o){
-				o.selecter
-					.hide();
-			};
+				dom.push(_txt);
+			}
 
-			// init();
-			this["Path"] = new Path();
-			path = this.Path;
-			path.init();
+			init();
 		});
 	};
 }(jQuery));
