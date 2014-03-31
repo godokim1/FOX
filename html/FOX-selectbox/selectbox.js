@@ -1,3 +1,17 @@
+/**
+ * Explanation
+ *
+ * Event - 클릭등 함수를 발생시키는 작업
+ * Method - Function으로 작업된 내용을 적용시켜 주는 작업
+ * Function - Method를 실행 시키기 위한 행위들
+ * 
+ * Global Variable - ex) var explain;
+ * Local Variable - ex) var _explain;
+ * Data Variable - ex) $.data(self) : 지워야하는 함수는 사용하지 않는다
+ * 
+ * return - return 시 Undefined는 표시하지 않는다.
+ * 
+ */
 (function($){
 	"use strict";
 	/**
@@ -19,12 +33,13 @@
 	 |	$(".fox_selectBox").FoxSelectBox();
 	 * @note
 	 */
-	$.fn.FoxSelectBox = function(opt){
+	$.fn.FoxSelectBox = function(options){
+
 		if (!this.length) {
 			return this;
 		}
 
-		var o = $.extend({
+		var opt = $.extend({
 			wrapId : "foxSelectBox",
 			wrapCl : "Dselect_box",
 			selectToggleId : "foxSelectBoxToggle",
@@ -35,73 +50,102 @@
 			selectBtnCl : "Dselect_btn",
 			optionBoxId : "foxSelectBoxOption",
 			optionBoxCl : "Dselect_option"
-		}, opt);
+		}, options);
 
 		return this.each(function(idx){
-			var $this = $(this),
-				$selectBox = $this.find("select"),
+			// selecter
+			var self = this,
+				$self = $(self),
+				$selectBox = $self.find("select"),
 				$selectValue = null,
 				$selectBtn = null,
 				$selectOption = null,
-				$selectList = null,
-				flag = false
+				$selectList = null;
+			// control
+			var flag = false;
 
 			function init(){
-				// dom draw setting
-				var _clone = this.FunClone();
-				var _draw = this.FunDraw(_clone);
-				this.FunAppend(_draw);
+				// dom selectTxt setting
+				var _clone = clone();
+				var _selectTxt = selectTxt(_clone);
+				append(_selectTxt);
 				// selecter setting
-				$selectValue = $this.find("." + o.selectValCl +" a");
-				$selectBtn = $this.find("." + o.selectBtnCl +" a");
-				$selectOption = $this.find("." + o.optionBoxCl);
-				$selectList = $this.find("li > a");
+				$selectValue = $self.find("." + opt.selectValCl +" a");
+				$selectBtn = $self.find("." + opt.selectBtnCl +" a");
+				$selectOption = $self.find("." + opt.optionBoxCl);
+				$selectList = $self.find("li > a");
 				// select toggle text setting
 				$selectValue.text("항목을선택해주세요");
 				// event add
 				$selectValue.on($.data(self,"click.selectValue","click.selectValue"), selectValue);
 				$selectBtn.on($.data(self,"click.selectBtn","click.selectBtn"), selectBtn);
 				$selectList.on($.data(self,"click.selectList","click.selectList"), selectList);
-			};
-			//-------------------------- Event Group (S) --------------------------//
+			}
+
+			//-------------------------- Event --------------------------//
+
 			/**
 			 * Event) selectValue
-			 * @return {Undefined}
 			 */
 			function selectValue(){
-				MetToggle();
+				toggle();
 				return false;
 			}
 			/**
 			 * Event) selectBtn
-			 * @return {Undefined}
 			 */
 			function selectBtn(){
-				MetToggle();
+				toggle();
 				return false;
 			}
 			/**
 			 * Event) selectList
-			 * @return {Undefined}
 			 */
-			function selectList(e){
-				var _val = $(this).attr("val");
-				var _txt = $(this).text();
+			function selectList(){
+				var _val = $(this).attr("val"),
+					_txt = $(this).text();
 
-				MetToggle();
+				toggle();
 
 				$selectValue.text(_txt);
 				$selectBox[0].value = _val;
-
-				e.preventDefault();
 			}
-			//-------------------------- Event Group (E) --------------------------//
-			//-------------------------- Function Group (S) --------------------------//
+
+			//-------------------------- Method --------------------------//
+
 			/**
-			 * clone => selectbox dom에 있는 value, text 값을 가져와 저장하는 function
+			 * Method) append => dom에 drow로 그린 html 추가해주는 공간
+			 * 
+			 * @param  {String} html.box => drow에서 생성한 box
+			 * @param  {String} html.option => drow에서 생성한 option
+			 * 
+			 * @return {undefined} 전달할 값이 없기 때문에 return 값이 필요하지 않다.
+			 */
+			function append(html){
+				$self.append(html.box);
+				$("#foxSelectBox" + idx).find("ul").append(html.option);
+			}
+			/**
+			 * Method) toggle => 열고 닫기
+			 */
+			function toggle(){
+				if (flag) {
+					$selectOption.hide();
+					flag = false;
+				} else {
+					$selectOption.show();
+					flag = true;
+				}
+			}
+
+			//-------------------------- Function --------------------------//
+
+			/**
+			 * Function) clone => selectbox dom에 있는 value, text 값을 가져와 저장하는 function
+			 * 
 			 * @return {Array} _data => 배열 안에 json
 			 */
-			function FunClone(){
+			function clone(){
 				var _child = $selectBox.children();
 				var _data = [];
 				var _parent = 1;
@@ -144,26 +188,28 @@
 				});
 
 				return _data;
-			};
+			}
 			/**
-			 * draw => clone에 저장한 data를 바탕으로 그려주는 공간
+			 * Function) selectTxt => clone에 저장한 data를 바탕으로 그려주는 공간
+			 * 
 			 * @param  {Array} clone => clone에서 저장한 값
+			 * 
 			 * @return {josn} => dom에 추가 하기 위한 _DselectOptionHtml, _DselectBox 값을 전달
 			 */
-			function FunDraw(clone){
+			function selectTxt(clone){
 				var _data = clone;
 				var _DselectOptionHtml = [];
-				var _DselectBox = "";
 				// design select wrap html
-				_DselectBox += "<div id='" + o.wrapId + idx + "' class='" + o.wrapCl + "'>";
-				_DselectBox += "	<div id='" + o.selectToggleId + idx + "' class='" + o.selectToggleCl + "'>";
-				_DselectBox += "		<div id='" + o.selectValId + idx + "' class='" + o.selectValCl + "'><a href='#'>값</a></div>";
-				_DselectBox += "		<div id='" + o.selectBtnId + idx + "' class='" + o.selectBtnCl + "'><a href='#'>닫기</a></div>";
-				_DselectBox += "	</div>";
-				_DselectBox += "	<div id='" + o.optionBoxId + idx + "' class='" + o.optionBoxCl + "'>";
-				_DselectBox += "		<ul></ul>";
-				_DselectBox += "	</div>";
-				_DselectBox += "</div>";
+				var _DselectBox	= "" +
+				"<div id='" + opt.wrapId + idx + "' class='" + opt.wrapCl + "'>" +
+				"	<div id='" + opt.selectToggleId + idx + "' class='" + opt.selectToggleCl + "'>" +
+				"		<div id='" + opt.selectValId + idx + "' class='" + opt.selectValCl + "'><a href='#'>값</a></div>" +
+				"		<div id='" + opt.selectBtnId + idx + "' class='" + opt.selectBtnCl + "'><a href='#'>닫기</a></div>" +
+				"	</div>" +
+				"	<div id='" + opt.optionBoxId + idx + "' class='" + opt.optionBoxCl + "'>" +
+				"		<ul></ul>" +
+				"	</div>" +
+				"</div>";
 
 				// design select option html
 				$.each(_data, function(){
@@ -189,11 +235,11 @@
 							});
 
 							_DselectOptionHtml.push(
-								"<li>"										+
-								"	<div class=\"Dselect_group\">"			+
-								"		<strong class=\"Dselect_groupTitle\">" + this.text + "</strong>"	+
-								"		<ul>" + __text + "</ul>"			+
-								"	</div>"									+
+								"<li>" +
+								"	<div class=\"Dselect_group\">" +
+								"		<strong class=\"Dselect_groupTitle\">" + this.text + "</strong>" +
+								"		<ul>" + __text + "</ul>" +
+								"	</div>" +
 								"</li>"
 							);
 						}
@@ -203,33 +249,11 @@
 				return {
 					"option" : _DselectOptionHtml,
 					"box" : _DselectBox
-				}
-			};
-			/**
-			 * FunAppend => dom에 drow로 그린 html 추가해주는 공간
-			 * @param  {json} html => drow에서 생성한 box, option
-			 * @return {undefined} 전달할 값이 없기 때문에 return 값이 필요하지 않다.
-			 */
-			function FunAppend(html){
-				$this.append(html.box);
-				$("#foxSelectBox" + idx).find("ul").append(html.option);
-			};
-			//-------------------------- Function Group (E) --------------------------//
-			//-------------------------- Method Group (S) --------------------------//
-			function MetToggle(){
-				if (flag) {
-					$selectOption.hide();
-					flag = false;
-				} else {
-					$selectOption.show();
-					flag = true;
-				}
-			};
-			//-------------------------- Method Group (E) --------------------------//
-			// init();
-			this["SelectBox"] = new SelectBox();
-			selectBox = this.SelectBox;
-			selectBox.init();
+				};
+			}
+
+			// Execute
+			init();
 		});
 	};
 }(jQuery));

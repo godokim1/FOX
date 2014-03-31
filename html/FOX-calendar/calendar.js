@@ -1,3 +1,17 @@
+/**
+ * Explanation
+ *
+ * Event - 클릭등 함수를 발생시키는 작업
+ * Method - Function으로 작업된 내용을 적용시켜 주는 작업
+ * Function - Method를 실행 시키기 위한 행위들
+ * 
+ * Global Variable - ex) var explain;
+ * Local Variable - ex) var _explain;
+ * Data Variable - ex) $.data(self) : 지워야하는 함수는 사용하지 않는다
+ * 
+ * return - return 시 Undefined는 표시하지 않는다.
+ * 
+ */
 (function($){
 	"use strict";
 	/**
@@ -14,6 +28,7 @@
 	 * @param  {String} monthPrev	=> monthPrev Btn Id
 	 * @param  {String} monthNext	=> monthNext Btn Id
 	 * @param  {String} yearNext	=> yearNext Btn Id
+	 * 
 	 * @return {jQuery} this
 	 *
 	 * @markup language
@@ -33,6 +48,7 @@
 	 *
 	 */
 	$.fn.FoxCalendar = function(options){
+
 		if (!this.length) {
 			return this;
 		}
@@ -50,36 +66,146 @@
 		}, options);
 
 		return this.each(function(){
+			// selecter
 			var self = this,
 				$self = $(self);
-			var date = new Date();
+			// control
+			var date, todayY, todayM, todayD;
+			// this data
+			$.data(self, "click.yearPrev");
+			$.data(self, "click.monthPrev");
+			$.data(self, "click.yearNext");
+			$.data(self, "click.monthNext");
+			$.data(self, "param.dateY");
+			$.data(self, "param.dateM");
+
+			//-------------------------- Initialization --------------------------//
 
 			function init(){
-				// date setting
-				opt.today.y = date.getFullYear();
-				opt.today.m = date.getMonth() + 1;
-				opt.today.d = date.getDate();
-				$.data(self, "dateY", opt.today.y);
-				$.data(self, "dateM", opt.today.m);
+				// setting
+				setting();
 
 				// dom draw
-				_headDraw(opt.today.y, opt.today.m);
-				_bodyDraw(opt.today.y, opt.today.m);
+				headDraw(todayY, todayM);
+				bodyDraw(todayY, todayM);
 
 				// event add
 				$("#"+opt.yearPrev).on($.data(self, "click.yearPrev", "click.yearPrev"), yearPrev);
 				$("#"+opt.monthPrev).on($.data(self, "click.monthPrev", "click.monthPrev"), monthPrev);
 				$("#"+opt.yearNext).on($.data(self, "click.yearNext", "click.yearNext"), yearNext);
 				$("#"+opt.monthNext).on($.data(self, "click.monthNext", "click.monthNext"), monthNext);
-			};
+			}
+
+			//-------------------------- Event --------------------------//
+
 			/**
-			 * Function) _headDraw > __head
+			 * Event) yearPrev => 이전년도 이벤트
+			 * 
 			 * @param  {Number} pY => Year
 			 * @param  {Number} pM => Month
-			 * @return {String} __text => _headDraw 에서 그려줄 dom을 넘겨줌
 			 */
-			function __head(pY, pM){
-				var __text =
+			function yearPrev(pY, pM){
+				bodyDraw($.data(self, "param.dateY") - 1, $.data(self, "param.dateM"));
+			}
+			/**
+			 * Event) monthPrev => 이전달 이벤트
+			 * 
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 */
+			function monthPrev(){
+				var _y = $.data(self, "param.dateY"),
+					_m = $.data(self, "param.dateM");
+
+				if (_m == 1) {
+					_y = _y-1;
+					_m = 12;
+				} else {
+					_y = _y;
+					_m = _m-1;
+				}
+				bodyDraw(_y, _m);
+			}
+			/**
+			 * Event) monthNext => 다음달 이벤트
+			 * 
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 */
+			function monthNext(pY, pM){
+				var _y = $.data(self, "param.dateY"),
+					_m = $.data(self, "param.dateM");
+
+				if (_m == 12) {
+					_y = _y+1;
+					_m = 1;
+				} else {
+					_y = _y;
+					_m = _m+1;
+				}
+				bodyDraw(_y, _m);
+			}
+			/**
+			 * Event) yearNext => 다음년도 이벤트
+			 * 
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 */
+			function yearNext(pY, pM){
+				bodyDraw($.data(self, "param.dateY") + 1, $.data(self, "param.dateM"));
+			}
+
+			//-------------------------- Method --------------------------//
+
+			/**
+			 * Method) setting => 초기화 설정
+			 */
+			function setting(){
+				date = new Date();
+				todayY = date.getFullYear();
+				todayM = date.getMonth() + 1;
+				todayD = date.getDate();
+				$.data(self, "param.dateY", todayY);
+				$.data(self, "param.dateM", todayM);
+			}
+			/**
+			 * Method) headDraw => 날짜와 요일을 그려줌
+			 * 
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 */
+			function headDraw(pY, pM){
+				var _txt = headTxt(pY, pM);
+				$self.append(_txt);
+			}
+			/**
+			 * Method) bodyDraw = 달력을 그려줌
+			 * 
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 */
+			function bodyDraw(pY, pM){
+				var _txt = bodyTxt(pY, pM);
+				$.data(self, "param.dateY", pY);
+				$.data(self, "param.dateM", pM);
+
+				viewDateExecute(pY, pM);
+				
+				$self.find("tbody").html(_txt);
+			}
+
+			//-------------------------- Function --------------------------//
+
+			/**
+			 * Function) headTxt => headDraw 에서 그려줄 String
+			 * 
+			 * @param  {Number} pY => Year
+			 * @param  {Number} pM => Month
+			 * 
+			 * @return {String} _text
+			 */
+			function headTxt(pY, pM){
+				var _text =
 				  '<div class="c_controll">'
 				+ '	<strong id="viewDate">' + pY + '/' + ((pM < 10) ? ('0' + pM) : pM) + '</strong>'
 				+ '	<button id="' + opt.yearPrev + '"> Y- </button>'
@@ -111,136 +237,59 @@
 				+ '	<tbody>'
 				+ '	</tbody>'
 				+ '</table>';
-				return __text;
+				return _text;
 			}
 			/**
-			 * Function) _headDraw
+			 * Function) viewDateExecute => 이벤트 발생시 년도 변경
+			 * 
 			 * @param  {Number} pY => Year
 			 * @param  {Number} pM => Month
-			 * @return {Undefined}
 			 */
-			function _headDraw(pY, pM){
-				var _txt = __head(pY, pM);
-				$self.append(_txt);
+			function viewDateExecute(pY, pM){
+				$("#viewDate").html(pY + "/" + pM);
 			}
 			/**
-			 * Function) _bodyDraw > __body
+			 * Function) bodyTxt => bodyDraw 에서 그려줄 String
+			 * 
 			 * @param  {Number} pY => Year
 			 * @param  {Number} pM => Month
-			 * @return {String} __text => _bodyDraw 에서 그려줄 dom을 넘겨줌
+			 * 
+			 * @return {String} _text
 			 */
-			function __body(pY, pM){
-				var __text = "";
-				var __d = (pY+(pY-pY%4)/4-(pY-pY%100)/100+(pY-pY%400)/400+pM*2+(pM*5-pM*5%9)/9-(pM<3?pY%4||pY%100==0&&pY%400?2:3:4))%7;
+			function bodyTxt(pY, pM){
+				var _text = "";
+				var _d = (pY+(pY-pY%4)/4-(pY-pY%100)/100+(pY-pY%400)/400+pM*2+(pM*5-pM*5%9)/9-(pM<3?pY%4||pY%100==0&&pY%400?2:3:4))%7;
 
 				for (var i = 0; i < 42; i++) {
-					if (i%7==0) __text += '</tr>\n<tr>';
-					if (i < __d || i >= __d+(pM*9-pM*9%8)/8%2+(pM==2?pY%4||pY%100==0&&pY%400?28:29:30)) __text += '<td></td>';
+					if (i%7==0) _text += '</tr>\n<tr>';
+					if (i < _d || i >= _d+(pM*9-pM*9%8)/8%2+(pM==2?pY%4||pY%100==0&&pY%400?28:29:30)) _text += '<td></td>';
 					else {
-						var ___d = i+1-__d;
-						if (___d === opt.today.d && pY === opt.today.y && opt.today.m === pM) {
-							if (isSchedule({y : pY, m : pM, d : ___d})) {
-								__text += '<td class="c_today"><span>' + ___d + '</span><p>'+getSchedule(___d)+'</p></td>';
+						var __d = i+1-_d;
+						if (__d === todayD && pY === todayY && todayM === pM) {
+							if (isSchedule({y : pY, m : pM, d : __d})) {
+								_text += '<td class="c_today"><span>' + __d + '</span><p>'+getSchedule(__d)+'</p></td>';
 							} else {
-								__text += '<td class="c_today"><span>' + ___d + '</span></td>';
+								_text += '<td class="c_today"><span>' + __d + '</span></td>';
 							}
 						} else {
-							if (isSchedule({y : pY, m : pM, d : ___d})) {
-								__text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + ___d + '</span><p>'+getSchedule(___d)+'</p></td>';
+							if (isSchedule({y : pY, m : pM, d : __d})) {
+								_text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + __d + '</span><p>'+getSchedule(__d)+'</p></td>';
 							} else {
-								__text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + ___d + '</span></td>';
+								_text += '<td' + (i%7 ? '' : ' class="c_sunday"') + '><span>' + __d + '</span></td>';
 							}
 						}
 					}
 				}
-				__text += '</tr>';
-				return __text;
+				_text += '</tr>';
+				return _text;
 			}
 			/**
-			 * Function) _bodyDraw > __viewDate
-			 * @param  {Number} pY => Year
-			 * @param  {Number} pM => Month
-			 * @return {Undefined}
-			 */
-			function __viewDate(pY, pM){
-				$("#viewDate").html(pY + "/" + pM);
-			}
-			/**
-			 * Function) _bodyDraw
-			 * @param  {Number} pY => Year
-			 * @param  {Number} pM => Month
-			 * @return {Undefined}
-			 */
-			function _bodyDraw(pY, pM){
-				$.data(self, "dateY", pY);
-				$.data(self, "dateM", pM);
-
-				__viewDate(pY, pM);
-				var _txt = __body(pY, pM);
-
-				$self.find("tbody").html(_txt);
-			}
-			/**
-			 * Event) yearPrev
-			 * @param  {Number} pY => Year
-			 * @param  {Number} pM => Month
-			 * @return {Undefined}
-			 */
-			function yearPrev(pY, pM){
-				_bodyDraw($.data(self, "dateY") - 1, $.data(self, "dateM"));
-			}
-			/**
-			 * Event) monthPrev
-			 * @param  {Number} pY => Year
-			 * @param  {Number} pM => Month
-			 * @return {Undefined}
-			 */
-			function monthPrev(){
-				var _y = $.data(self, "dateY"),
-					_m = $.data(self, "dateM");
-
-				if (_m == 1) {
-					_y = _y-1;
-					_m = 12;
-				} else {
-					_y = _y;
-					_m = _m-1;
-				}
-				_bodyDraw(_y, _m);
-			}
-			/**
-			 * Event) monthNext
-			 * @param  {Number} pY => Year
-			 * @param  {Number} pM => Month
-			 * @return {Undefined}
-			 */
-			function monthNext(pY, pM){
-				var _y = $.data(self, "dateY"),
-					_m = $.data(self, "dateM");
-
-				if (_m == 12) {
-					_y = _y+1;
-					_m = 1;
-				} else {
-					_y = _y;
-					_m = _m+1;
-				}
-				_bodyDraw(_y, _m);
-			}
-			/**
-			 * Event) yearNext
-			 * @param  {Number} pY => Year
-			 * @param  {Number} pM => Month
-			 * @return {Undefined}
-			 */
-			function yearNext(pY, pM){
-				_bodyDraw($.data(self, "dateY") + 1, $.data(self, "dateM"));
-			}
-			/**
-			 * Method) isSchedule => 이번달이 맞는지 확인하는 method 이번달일 경우에만 text를 뿌려주기 위한 Function
+			 * Function) isSchedule => 이번달이 맞는지 확인하는 Function 이번달일 경우에만 text를 뿌려주기 위한 Function
+			 * 
 			 * @param  {Number}  o.y => Year
 			 * @param  {Number}  o.m => Month
 			 * @param  {Number}  o.d => Date
+			 * 
 			 * @return {Boolean} => 초기 설정 schedule 값 중 y,m,d 모두 일치하면 true
 			 */
 			function isSchedule(o){
@@ -253,8 +302,10 @@
 				return false;
 			}
 			/**
-			 * Method) getSchedule => 이번달에 해당하는 스큐쥴만 보여주기위한 Function
+			 * Function) getSchedule => 이번달에 해당하는 스큐쥴만 보여주기위한 Function
+			 * 
 			 * @param  {Number} date => for Date
+			 * 
 			 * @return {Number} => 초기설정 schedule 값 d 와 일치하면 해당 스케쥴 반환
 			 */
 			function getSchedule(date){
@@ -266,6 +317,7 @@
 				}
 			}
 
+			// Execute
 			init();
 		});
 	};

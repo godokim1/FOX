@@ -1,3 +1,17 @@
+/**
+ * Explanation
+ *
+ * Event - 클릭등 함수를 발생시키는 작업
+ * Method - Function으로 작업된 내용을 적용시켜 주는 작업
+ * Function - Method를 실행 시키기 위한 행위들
+ * 
+ * Global Variable - ex) var explain;
+ * Local Variable - ex) var _explain;
+ * Data Variable - ex) $.data(self) : 지워야하는 함수는 사용하지 않는다
+ * 
+ * return - return 시 Undefined는 표시하지 않는다.
+ * 
+ */
 (function($){
 	"use strict";
 	/**
@@ -47,92 +61,96 @@
 		}, options);
 
 		return this.each(function(){
-			// sele
+			// selecter
 			var self = this,
-				$this = $(self),
-				$tabListsWrap = $this.find(opt.tabListsWrap),
+				$self = $(self),
+				$tabListsWrap = $self.find(opt.tabListsWrap),
 				$tabLists = $tabListsWrap.find(opt.tabLists),
 				$tabListsA = $tabLists.find("> a"),
-				$tabContsWrap = $this.find(opt.tabContsWrap),
+				$tabContsWrap = $self.find(opt.tabContsWrap),
 				$tabConts = $tabContsWrap.find(opt.tabConts),
 				$tabContsA = $tabConts.find("> a");
-
+			// control
 			var tabListLeg = null,
 				storageIdx = null,
 				timer = null;
 
 			function init(){
 				// setting
+				setting();
+				// action event
+				autoStart();
+				// event add
+				$self.on($.data(self, "mouseenter.tab", "mouseenter.tab"), autoStop);
+				$self.on($.data(self, "mouseleave.tab", "mouseleave.tab"), autoStart);
+				$tabListsA.on($.data(self, "click.tabListsA", "click.tabListsA"), tabListsA);
+			}
+			/**
+			 * Method) setting => 초기화 작업
+			 */
+			function setting(){
 				$tabLists.eq(opt.idx).addClass("on");
 				$tabConts.eq(opt.idx).siblings().hide();
 				storageIdx = opt.idx;
 				tabListLeg = $tabLists.length;
-				// action event
-				autoStart();
-				// event add
-				$this.on($.data(self, "mouseenter.tab", "mouseenter.tab"), autoStop);
-				$this.on($.data(self, "mouseleave.tab", "mouseleave.tab"), autoStart);
-				$tabListsA.on($.data(self, "click.tabListsA", "click.tabListsA"), tabListsA);
 			}
 			/**
-			 * Event) tabListsA
+			 * Event) tabListsA => 리스트에서 A태그 클릭시 발생하는 이벤트
+			 * 
 			 * @param  {event} e => event
-			 * @return {Undefined}
 			 */
 			function tabListsA(e){
 				var _idx = $tabListsA.index(this);
+
 				if (_idx === storageIdx) {
 					return false;
 				}
 
-				_List({idx : _idx});
+				listMove({idx : _idx});
 				storageIdx = _idx;
 				e.preventDefault();
 			}
 			/**
-			 * Event) autoStart
-			 * @return {Undefined}
+			 * Event) autoStart => 초기 auto가 true 라면 자동 실행
 			 */
 			function autoStart(){
 				if (opt.auto) {
-					timer = setInterval(_listsIncrease, 5000);
+					timer = setInterval(listsIncrease, 5000);
 				}
 			}
 			/**
-			 * Event) autoStop
-			 * @return {Undefined}
+			 * Event) autoStop => 마우스가 tab영역 안에 있다면 auto기능을 제거
 			 */
 			function autoStop(){
 				clearInterval(timer);
 				timer = null;
 			}
 			/**
-			 * Function) _listsIncrease
-			 * @return {Undefined}
+			 * Method) _listsIncrease => auto 기능 활성화시 자동으로 한칸씩 이동시키는 메소드
 			 */
-			function _listsIncrease(){
+			function listsIncrease(){
 				if (++storageIdx >= tabListLeg) {
 					storageIdx = 0;
 				}
-				_List({idx : storageIdx});
+				listMove({idx : storageIdx});
 			}
 			/**
-			 * Function) _List
+			 * Method) listMove => 이벤트 발생시 list 이동시키는 메소드
+			 * 
 			 * @param  {Number} o.idx => targeting index
-			 * @return {Undefined}
 			 */
-			function _List(o){
-				_listsClear();
-				_listsAdd({idx : o.idx});
-				_contsClear();
-				_contsAdd({idx : o.idx});
+			function listMove(o){
+				listsClear();
+				listsExecute({idx : o.idx});
+				contsClear();
+				contsExecute({idx : o.idx});
 			}
 			/**
-			 * Function) _contsAdd
+			 * Function) contsExecute => 컨텐츠영역 이동(다음)
+			 * 
 			 * @param  {Number} o.idx => targeting index
-			 * @return {Undefined}
 			 */
-			function _contsAdd(o){
+			function contsExecute(o){
 				if ($tabConts.eq(o.idx).is(":hidden")) {
 					$tabConts.eq(o.idx)
 						.css({"display" : "block", "left" : "100%"})
@@ -140,31 +158,31 @@
 				}
 			}
 			/**
-			 * Function) _listsAdd
+			 * Function) listsExecute => 리스트영역 클래스 추가
+			 * 
 			 * @param  {Number} o.idx => targeting index
-			 * @return {Undefined}
 			 */
-			function _listsAdd(o){
+			function listsExecute(o){
 				if (!$tabLists.eq(o.idx).hasClass("on")) {
 					$tabLists.eq(o.idx).show().addClass("on");
 				}
 			}
 			/**
-			 * Function) _contsClear
-			 * @return {Undefined}
+			 * Function) contsClear => 컨텐츠영역 이동(이전)
 			 */
-			function _contsClear(){
+			function contsClear(){
 				$.each($tabConts, function(){
 					if ($(this).is(":visible")) {
-						$(this).animate({"left" : "-100%"}, function(){$(this).css({"display" : "none"})});
+						$(this).animate({"left" : "-100%"}, function(){
+							$(this).css({"display" : "none"});
+						});
 					}
 				});
 			}
 			/**
-			 * Function) _listsClear
-			 * @return {Undefined}
+			 * Function) listsClear => 리스트영역 클래스 제거
 			 */
-			function _listsClear(){
+			function listsClear(){
 				$.each($tabLists, function(){
 					if ($(this).hasClass("on")) {
 						$(this).removeClass("on");
@@ -172,6 +190,7 @@
 				});
 			}
 
+			// Execute
 			init();
 		});
 	};
