@@ -38,12 +38,12 @@
 	 |	});
 	 * @note
 	 */
-	$.fn.gnb = function(opt){
+	$.fn.gnb = function(options){
 		if (!this.length) {
 			return this;
 		}
 
-		var o = $.extend({
+		var opt = $.extend({
 			depth01 : ".depth01",
 			depth02 : ".depth02",
 			depth03 : ".depth03",
@@ -53,163 +53,150 @@
 			depth01Idx : null,
 			depth02Idx : null,
 			depth03Idx : null
-		}, opt);
+		}, options);
 
 		return this.each(function(){
-			var Gnb = function(){},
-				gnb = null;
-
-			var $this = $(this),
-				$depth01 = $this.find(o.depth01),
-				$depth02 = $this.find(o.depth02),
-				$depth03 = $this.find(o.depth03),
-				$depth01List = $depth01.find(o.depth01List),
-				$depth02List = $depth01.find(o.depth02List),
-				$depth03List = $depth01.find(o.depth03List);
-
+			// selecter
+			var self = this,
+				$self = $(self),
+				$depth01 = $self.find(opt.depth01),
+				$depth02 = $self.find(opt.depth02),
+				$depth03 = $self.find(opt.depth03),
+				$depth01List = $depth01.find(opt.depth01List),
+				$depth02List = $depth01.find(opt.depth02List),
+				$depth03List = $depth01.find(opt.depth03List);
+			// control
 			var storageDep01Idx = null,
 				storageDep02Idx = null,
 				storageDep03Idx = null,
 				mainPage = null;
 
-			Gnb.fn = Gnb.prototype;
-			Gnb.fn.init = function(){
-				this.EventAddlistener({selecter : $this, type : "mouseleave.gnb", event : this.EventGnb});
-				this.EventAddlistener({selecter : $depth01List, type : "mouseenter.depth01", event : this.EventDepth01List});
-				this.EventAddlistener({selecter : $depth02List, type : "mouseenter.depth02", event : this.EventDepth02List});
-				mainPage = this.FunMainPageCheck();
-				// Main Gnb initialization
-				if (mainPage) {
-					this.FunMainInit();
-				} else {
-				// Sub Gnb initialization
-					this.FunSubInit();
-				}
-			};
+			//-------------------------- Initialization --------------------------//
 
+			function init(){
+				mainPage = mainPageCheck();
+				// Main Gnb setting
+				if (mainPage) mainSetting();
+				// Sub Gnb setting
+				else subSetting();
+
+				// event add
+				$self.on($.data(self,"mouseleave.gnb","mouseleave.gnb"), gnb);
+				$depth01List.on($.data(self,"mouseenter.depth01","mouseenter.depth01"), depth01List);
+				$depth02List.on($.data(self,"mouseenter.depth02","mouseenter.depth02"), depth02List);
+			}
+
+			//-------------------------- Event --------------------------//
+			
 			/**
-			 * Addlistener
-			 * @param {Object} o -> selecter : "이벤트 종류"
-			 *					 -> type : "이벤트 종류"
-			 *					 -> event : "호출 이벤트"
-			 * @note -> Event 경우 param값을 넘기지 않는다.
+			 * Event) gnb => gnb 영역 벗어날경우 발생
 			 */
-			Gnb.fn.EventAddlistener = function(o){
-				o.selecter.on(o.type, o.event);
-			};
-			Gnb.fn.EventRemovelistener = function(o){
-				o.selecter.off(o.type);
-			};
+			function gnb(){
+				gnbClear();
 
-			Gnb.fn.EventGnb = function(){
-				var _this = gnb;
-
-				_this.FunGnbClear();
-
-				if (mainPage) {
-					_this.FunMainInit();
-				} else {
-					_this.FunSubInit();
-				}
-			};
-			Gnb.fn.EventDepth01List = function(){
-				var _this = gnb;
+				if (mainPage) mainSetting();
+				else subSetting();
+			}
+			/**
+			 * Event) depth01List => depth01에 마우스 오버시 발생
+			 */
+			function depth01List(){
 				var _idx = $(this).index();
 
 				if (_idx === storageDep01Idx) {
 					return false;
 				}
 
-				_this.FunGnbClear();
-				_this.FunDepth02Open({selecter : $(this).find($depth02)});
+				gnbClear();
+				$(this).find($depth02).show();
 
 				storageDep01Idx = _idx;
 				return false;
-			};
-			Gnb.fn.EventDepth02List = function(){
-				var _this = gnb;
+			}
+			/**
+			 * Event) depth02List => depth02에 마우스 오버시 발생
+			 */
+			function depth02List(){
 				var _idx = $(this).index();
 
 				if (_idx === storageDep02Idx) {
 					return false;
 				}
 
-				_this.FunDepth03Close();
-				_this.FunDepth03Open({selecter : $(this).find($depth03)});
+				depth03Clear();
+				$(this).find($depth03).show();
 
 				storageDep02Idx = _idx;
 				return false;
-			};
+			}
 
-			Gnb.fn.FunMainPageCheck = function(){
-				if (o.depth01Idx === null &&
-					o.depth02Idx === null &&
-					o.depth03Idx === null) return true;
+			//-------------------------- Method --------------------------//
+			/**
+			 * Method) mainPageCheck => 메인인지 서브인 체크
+			 *
+			 * @return {Boolean} main : true, sub : false
+			 */
+			function mainPageCheck(){
+				if (opt.depth01Idx === null &&
+					opt.depth02Idx === null &&
+					opt.depth03Idx === null) return true;
 				else return false;
-			};
+			}
+			/**
+			 * Method) 메인 초기화
+			 */
+			function mainSetting(){
+				storageDep01Idx = null;
+				storageDep02Idx = null;
+				storageDep03Idx = null;
+			}
+			/**
+			 * Method) 서브 초기화
+			 */
+			function subSetting(){
+				storageDep01Idx = opt.depth01Idx;
+				storageDep02Idx = opt.depth02Idx;
+				storageDep03Idx = opt.depth03Idx;
 
-			Gnb.fn.FunMainInit = function(){};
-			Gnb.fn.FunSubInit = function(){
-				this.MetOpen({selecter : $depth02.eq(o.depth01Idx)});
-				this.MetOpen({selecter : $depth02.eq(o.depth01Idx).find($depth03)});
-				this.MetAddClass({selecter : $depth01List.eq(o.depth01Idx), clsName: "on"});
-				this.MetAddClass({selecter : $depth01List.eq(o.depth01Idx).find($depth02List).eq(o.depth02Idx), clsName: "on"});
-				this.MetAddClass({selecter : $depth01List.eq(o.depth01Idx).find($depth02List).eq(o.depth02Idx).find($depth03List).eq(o.depth03Idx), clsName: "on"});
-				storageDep01Idx = o.depth01Idx;
-				storageDep02Idx = o.depth02Idx;
-				storageDep03Idx = o.depth03Idx;
-			};
-			// add
-			Gnb.fn.FunDepth02Open = function(o){
-				this.MetOpen({selecter : o.selecter});
-				return this;
-			};
-			Gnb.fn.FunDepth03Open = function(o){
-				this.MetOpen({selecter : o.selecter});
-				return this;
-			};
-			// clear
-			Gnb.fn.FunGnbClear = function(){
-				this.FunDepth03Close();
-				this.FunDepth02Close();
-				return this;
-			};
-			Gnb.fn.FunDepth02Close = function(){
-				_this = this;
+				$depth01List
+					.eq(storageDep01Idx).addClass("on")
+					.find($depth02).show()
+					.find($depth02List).eq(storageDep02Idx).addClass("on")
+					.find($depth03).show()
+					.find($depth03List).eq(storageDep03Idx).addClass("on");
+			}
+			/**
+			 * Method) depth02Clear => depth02 내용 숨기기
+			 */
+			function depth02Clear(){
 				$.each($depth01List.eq(storageDep01Idx).find($depth02), function(){
 					if ($(this).is(":visible")) {
-						_this.MetClose({selecter : $(this)});
+						$(this).hide();
 					}
 				});
-				return this;
-			};
-			Gnb.fn.FunDepth03Close = function(){
-				_this = this;
+			}
+			/**
+			 * Method) depth03Clear => depth03 내용 숨기기
+			 */
+			function depth03Clear(){
 				$.each($depth01List.eq(storageDep01Idx).find($depth03), function(){
 					if ($(this).is(":visible")) {
-						_this.MetClose({selecter : $(this)});
+						$(this).hide();
 					}
 				});
-				return this;
-			};
-			// common
-			Gnb.fn.MetOpen = function(o){
-				o.selecter.show();
-				return this;
-			};
-			Gnb.fn.MetClose = function(o){
-				o.selecter.hide();
-				return this;
-			};
-			Gnb.fn.MetAddClass = function(o){
-				o.selecter.addClass(o.clsName);
-				return this;
-			};
+			}
 
-			// init();
-			this["Gnb"] = new Gnb();
-			gnb = this.Gnb;
-			gnb.init();
+			//-------------------------- Function --------------------------//
+			/**
+			 * Function) gnbClear => gnb 내용 숨기기
+			 */
+			function gnbClear(){
+				depth03Clear();
+				depth02Clear();
+			}
+			
+
+			init();
 		});
 	};
 }(jQuery));
